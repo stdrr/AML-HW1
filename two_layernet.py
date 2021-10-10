@@ -92,10 +92,15 @@ class TwoLayerNet(object):
         #############################################################################
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
         
+        ReLU = lambda x: np.maximum(0, x)
+        softmax = lambda x:  np.exp(x)/np.sum(np.exp(x), axis = 1).reshape(x.shape[0], 1)
 
-        pass
+        a1 = X
+        z2 = a1.dot(W1) + b1 # np.einsum('ij, ki -> kj', W1, a1) + b1
+        a2 = ReLU(z2)
+        z3 = a2.dot(W2) + b2 # np.einsum('ij, ki -> kj', W2, a2) + b2
+        scores = softmax(z3) # scores = a3
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
