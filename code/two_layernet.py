@@ -172,9 +172,14 @@ class TwoLayerNet(object):
 
 		dz3_da2 = W2.T
 		# print(f'W1 {W1.shape}, W2 {W2.shape}, z2 {z2.shape}, a1 {a1.shape}, dJ_dz3 {dJ_dz3.shape}')
-		da2_dW1 = ((a1 > 0) * a1).T
+		da2_dW1 = ((z2 >= 0) * a1).T
 		dR_dW1 = 2 * reg * W1
-		grads['W1'] = da2_dW1 @ (dJ_dz3 @ dz3_da2) + dR_dW1
+		grads['W1'] = ((da2_dW1 @ dJ_dz3) @ dz3_da2) + dR_dW1
+
+
+		# grads['b1'] = dz3_da2 @ dJ_dz3  @ (z2 > 0)
+
+		grads['b2'] = np.sum(dJ_dz3, axis=0) # working
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
