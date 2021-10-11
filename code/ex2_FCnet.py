@@ -97,7 +97,7 @@ correct_loss = 1.30378789133
 print('Difference between your loss and correct loss:')
 print(np.sum(np.abs(loss - correct_loss)))
 
-
+exit(1)
 
 #======================================================================================
 # Q2:Computing gradients using back propogation
