@@ -107,7 +107,7 @@ class TwoLayerNet(object):
 
 		# If the targets are not given then jump out, we're done
 		if y is None:
-				return scores
+			return scores
 
 
 		# Compute the loss
@@ -138,9 +138,13 @@ class TwoLayerNet(object):
 
 		# loss = J + R
 		
-		J = lambda scores, y: np.mean(-np.log( scores[np.arange(N),y] ) )
-		R = lambda W1, W2, r_lambda: r_lambda*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
-		loss = J(scores=scores, y=y) + R(W1, W2, r_lambda=reg)
+		# J = lambda scores, y: np.mean(-np.log( scores[np.arange(N),y] ) )
+		# R = lambda W1, W2, r_lambda: r_lambda*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
+		# loss = J(scores=scores, y=y) + R(W1, W2, r_lambda=reg)
+
+		J = np.mean(-np.log( scores[np.arange(N),y] ) )
+		R = reg*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
+		loss = J + R
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -155,9 +159,22 @@ class TwoLayerNet(object):
 
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 		
-		
 
-		pass
+		Delta = np.zeros(shape=scores.shape)
+		Delta[np.arange(N), y] = 1
+		dJ_dz3 = (scores - Delta) / N
+		dR_dW2 = 2 * reg * W2
+		# print(f'dR_dW2 -> {dR_dW2.shape}')
+		dz3_dW2 = a2.T
+		# print(f'dz3_dW2 -> {dz3_dW2.shape}')
+
+		grads['W2'] = dz3_dW2 @ dJ_dz3 + dR_dW2
+
+		dz3_da2 = W2.T
+		# print(f'W1 {W1.shape}, W2 {W2.shape}, z2 {z2.shape}, a1 {a1.shape}, dJ_dz3 {dJ_dz3.shape}')
+		da2_dW1 = ((a1 > 0) * a1).T
+		dR_dW1 = 2 * reg * W1
+		grads['W1'] = da2_dW1 @ (dJ_dz3 @ dz3_da2) + dR_dW1
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -233,18 +250,18 @@ class TwoLayerNet(object):
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			if verbose and it % 100 == 0:
-					print('iteration %d / %d: loss %f' % (it, num_iters, loss))
+				print('iteration %d / %d: loss %f' % (it, num_iters, loss))
 
 			# At every epoch check train and val accuracy and decay learning rate.
 			if it % iterations_per_epoch == 0:
-					# Check accuracy
-					train_acc = (self.predict(X_batch) == y_batch).mean()
-					val_acc = (self.predict(X_val) == y_val).mean()
-					train_acc_history.append(train_acc)
-					val_acc_history.append(val_acc)
+				# Check accuracy
+				train_acc = (self.predict(X_batch) == y_batch).mean()
+				val_acc = (self.predict(X_val) == y_val).mean()
+				train_acc_history.append(train_acc)
+				val_acc_history.append(val_acc)
 
-					# Decay learning rate
-					learning_rate *= learning_rate_decay
+				# Decay learning rate
+				learning_rate *= learning_rate_decay
 
 		return {
 			'loss_history': loss_history,
