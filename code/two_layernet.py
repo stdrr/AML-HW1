@@ -138,9 +138,9 @@ class TwoLayerNet(object):
 
 		# loss = J + R
 		
-		J = lambda Z_exp, y: np.mean(-np.log( Z_exp[np.arange(N),y] / Z_exp.sum(1, keepdims=True) ) )
+		J = lambda scores, y: np.mean(-np.log( scores[np.arange(N),y] ) )
 		R = lambda W1, W2, r_lambda: r_lambda*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
-		loss = J(Z_exp=scores, y=y) + R(W1, W2, r_lambda=reg)
+		loss = J(scores=scores, y=y) + R(W1, W2, r_lambda=reg)
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
