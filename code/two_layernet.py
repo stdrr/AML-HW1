@@ -159,27 +159,28 @@ class TwoLayerNet(object):
 
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 		
-
+		# Compute the derivative of the softmax function
 		Delta = np.zeros(shape=scores.shape)
 		Delta[np.arange(N), y] = 1
 		dJ_dz3 = (scores - Delta) / N
-		dR_dW2 = 2 * reg * W2
-		# print(f'dR_dW2 -> {dR_dW2.shape}')
-		dz3_dW2 = a2.T
-		# print(f'dz3_dW2 -> {dz3_dW2.shape}')
 
+		# Compute dJ/dW1 = dJ/dz3 * dz3/da2 * da2/dz2 * dz2/dW1
+		dz3_da2 = W2.T
+		da2_dz2 = (z2 > 0)
+		dz2_dW1 = a1.T
+		dR_dW1 = 2 * reg * W1
+		grads['W1'] = dz2_dW1 @ ((dJ_dz3 @ dz3_da2) * da2_dz2) + dR_dW1
+
+		# Compute dJ/dW2 = dJ/dz3 * dz3/dW2
+		dz3_dW2 = a2.T
+		dR_dW2 = 2 * reg * W2
 		grads['W2'] = dz3_dW2 @ dJ_dz3 + dR_dW2
 
-		dz3_da2 = W2.T
-		# print(f'W1 {W1.shape}, W2 {W2.shape}, z2 {z2.shape}, a1 {a1.shape}, dJ_dz3 {dJ_dz3.shape}')
-		da2_dW1 = ((z2 >= 0) * a1).T
-		dR_dW1 = 2 * reg * W1
-		grads['W1'] = ((da2_dW1 @ dJ_dz3) @ dz3_da2) + dR_dW1
+		# Compute dJ/db1 = dJ/dz3 * dz3/da2 * da2/dz2 * dz2/db1
+		grads['b1'] =  ((dJ_dz3 @ dz3_da2) * da2_dz2).sum(axis=0)
 
-
-		# grads['b1'] = dz3_da2 @ dJ_dz3  @ (z2 > 0)
-
-		grads['b2'] = np.sum(dJ_dz3, axis=0) # working
+		# Compute dJ/db2 = dJ/dz3 * dz3/db2
+		grads['b2'] = dJ_dz3.sum(axis=0)
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
