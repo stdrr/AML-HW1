@@ -119,7 +119,7 @@ for param_name in grads:
     param_grad_num = eval_numerical_gradient(f, net.params[param_name], verbose=False)
     print('%s max relative error: %e' % (param_name, rel_error(param_grad_num, grads[param_name])))
 
-exit(1)
+# exit(1)
 
 
 #======================================================================================
