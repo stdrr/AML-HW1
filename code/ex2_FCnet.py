@@ -276,9 +276,43 @@ best_net = None # store the best model into this
 
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+from tqdm import tqdm
+
+param_grid = {
+    'hidden_size':[60,80,100],
+    'num_iters':[1000,2000,3000],
+    'batch_size':[100,200],# [32,64,128,256,512],
+    'learning_rate':[0.01,0.001,0.0001],
+    'learning_rate_decay':[0.95],# [0.95,0.85,0.75,0.65],
+    'reg':[0.15,0.25,0.35]#,0.35,0.45,0.55]
+}
+
+current_best_val_acc = 0.0
+current_best_params = dict.fromkeys(param_grid.keys())
 
 
-pass
+for h_size in tqdm(param_grid['hidden_size']):
+    for n_iters in param_grid['num_iters']:
+        for b_size in param_grid['batch_size']:
+            for l_rate in param_grid['learning_rate']:
+                for lr_decay in param_grid['learning_rate_decay']:
+                    for r in param_grid['reg']:
+                        net = TwoLayerNet(input_size, h_size, num_classes)
+                        stats = net.train(X_train, y_train, X_val, y_val,
+                                            num_iters=n_iters, batch_size=b_size,
+                                            learning_rate=l_rate, learning_rate_decay=lr_decay,
+                                            reg=r, verbose=False)
+                        if stats['val_acc_history'][-1] > current_best_val_acc:
+                            current_best_val_acc = stats['val_acc_history'][-1]
+                            current_best_params['hidden_size'] = h_size
+                            current_best_params['num_iters'] = n_iters
+                            current_best_params['batch_size'] = b_size
+                            current_best_params['learning_rate'] = l_rate
+                            current_best_params['learning_rate_decay'] = lr_decay
+                            current_best_params['reg'] = r
+                            best_net = net
+
+print(current_best_params)
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
