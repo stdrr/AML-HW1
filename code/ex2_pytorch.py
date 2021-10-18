@@ -112,7 +112,18 @@ class MultiLayerPerceptron(nn.Module):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        
+        # Vectorize the input image
+        layers.append(nn.Flatten())
+
+        # Add layers to the list
+        prev_size = input_size
+        for h_size in hidden_layers:
+            layers.append(nn.Linear(in_features=prev_size, out_features=h_size))
+            layers.append(nn.ReLU())
+            prev_size = h_size
+
+        # Add the last layer
+        layers.append(nn.Linear(in_features=hidden_layers[-1], out_features=num_classes))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -130,7 +141,7 @@ class MultiLayerPerceptron(nn.Module):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-
+        out = self.layers(x)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         
@@ -168,8 +179,22 @@ if train:
             # Use examples in https://pytorch.org/tutorials/beginner/pytorch_with_examples.html
             #################################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            
+            # 1. Pass the images to the model --> Compute the predictions on the minibatch
+            y_pred = model(images)
 
+            # 2. Compute the loss using the output and the labels
+            loss = criterion(y_pred, labels)
 
+            # 3. Compute gradients and update the model using the optimizer
+            # 3.1 Zero the gradient before computing the backward pass
+            optimizer.zero_grad()
+
+            # 3.2 Backward pass: compute gradient of the loss with respect to model parameters
+            loss.backward()
+
+            # 3.3 Update the model's parameters
+            optimizer.step()
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -193,7 +218,7 @@ if train:
                 ####################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            
+                predicted = torch.argmax(model(images), axis=1)
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
                 total += labels.size(0)

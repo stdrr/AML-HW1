@@ -230,9 +230,9 @@ class TwoLayerNet(object):
 			
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 			
+			rng = np.random.default_rng()
+			batch_idx = rng.permute(num_train)
 			
-			
-			pass
 	
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
