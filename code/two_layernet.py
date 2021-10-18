@@ -229,11 +229,14 @@ class TwoLayerNet(object):
 			#########################################################################
 			
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-			
-			rng = np.random.default_rng()
-			batch_idx = rng.permute(num_train)
-			
-	
+			if it % iterations_per_epoch == 0:
+				idx = np.arange(num_train)
+				np.random.shuffle(idx)
+				step = 0
+			start = step*batch_size
+			end = ((step+1)*batch_size)
+			step += 1
+			X_batch, y_batch = X[start:end], y[start:end]		
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			# Compute loss and gradients using the current minibatch
@@ -248,11 +251,10 @@ class TwoLayerNet(object):
 			#########################################################################
 			
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-			
-			
-			
-			pass
-	
+			self.params['W1'] -= learning_rate*grads['W1']
+			self.params['b1'] -= learning_rate*grads['b1']
+			self.params['W2'] -= learning_rate*grads['W2']
+			self.params['b2'] -= learning_rate*grads['b2']
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			if verbose and it % 100 == 0:
@@ -299,11 +301,7 @@ class TwoLayerNet(object):
 		###########################################################################
 		
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
-
-		pass
-
+		y_pred = np.argmax(self.loss(X), axis = 1)
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 		return y_pred
