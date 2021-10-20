@@ -277,7 +277,16 @@ best_net = None # store the best model into this
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 from tqdm import tqdm
+import itertools
 
+# avoid storing in the memory whole of the combinations, but runs the code once
+def iterate_values(S): 
+    keys, values = zip(*S.items())
+
+    for row in itertools.product(*values):
+        yield dict(zip(keys, row))
+
+# possible combination to keep in mind
 param_grid = {
     'hidden_size':[60,80,100],
     'num_iters':[1000,2000,3000],
@@ -285,34 +294,36 @@ param_grid = {
     'learning_rate':[0.01,0.001,0.0001],
     'learning_rate_decay':[0.95],# [0.95,0.85,0.75,0.65],
     'reg':[0.15,0.25,0.35]#,0.35,0.45,0.55]
-}
+} # 164 combinations --> GridSearchCV() approach
 
 current_best_val_acc = 0.0
 current_best_params = dict.fromkeys(param_grid.keys())
 
+for combo in tqdm(iterate_values(param_grid)):
+    # create the neural network
+    net = TwoLayerNet(input_size, combo['hidden_size'], num_classes)
+    
+    # train the model with certain values
+    stats = net.train(X_train, y_train, X_val, y_val,
+                        num_iters = combo['num_iters'], 
+                        batch_size= combo['batch_size'],
+                        learning_rate = combo['learning_rate'], 
+                        learning_rate_decay = combo['learning_rate_decay'],
+                        reg = combo['reg'], 
+                        verbose=False)
 
-for h_size in tqdm(param_grid['hidden_size']):
-    for n_iters in param_grid['num_iters']:
-        for b_size in param_grid['batch_size']:
-            for l_rate in param_grid['learning_rate']:
-                for lr_decay in param_grid['learning_rate_decay']:
-                    for r in param_grid['reg']:
-                        net = TwoLayerNet(input_size, h_size, num_classes)
-                        stats = net.train(X_train, y_train, X_val, y_val,
-                                            num_iters=n_iters, batch_size=b_size,
-                                            learning_rate=l_rate, learning_rate_decay=lr_decay,
-                                            reg=r, verbose=False)
-                        if stats['val_acc_history'][-1] > current_best_val_acc:
-                            current_best_val_acc = stats['val_acc_history'][-1]
-                            current_best_params['hidden_size'] = h_size
-                            current_best_params['num_iters'] = n_iters
-                            current_best_params['batch_size'] = b_size
-                            current_best_params['learning_rate'] = l_rate
-                            current_best_params['learning_rate_decay'] = lr_decay
-                            current_best_params['reg'] = r
-                            best_net = net
+    # check if the new setting is better than before
+    if stats['val_acc_history'][-1] > current_best_val_acc:
+        current_best_val_acc = stats['val_acc_history'][-1]
+        current_best_params['hidden_size'] = combo['hidden_size']
+        current_best_params['num_iters'] = combo['num_iters']
+        current_best_params['batch_size'] = combo['batch_size']
+        current_best_params['learning_rate'] = combo['learning_rate']
+        current_best_params['learning_rate_decay'] = combo['learning_rate_decay']
+        current_best_params['reg'] = combo['reg']
+        best_net = net
 
-print(current_best_params)
+print(current_best_params) # top combination
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
