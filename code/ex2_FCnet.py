@@ -276,6 +276,9 @@ best_net = None # store the best model into this
 
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+from tqdm import tqdm
+import itertools
+
 def randomSearch(n, param_grid, current_best_val_acc, current_best_params):
 
     '''
@@ -318,9 +321,6 @@ def randomSearch(n, param_grid, current_best_val_acc, current_best_params):
     print(current_best_params)
     return best_net
 
-from tqdm import tqdm
-import itertools
-
 # avoid storing in the memory whole of the combinations, but runs the code once
 def iterate_values(S): 
     keys, values = zip(*S.items())
@@ -330,13 +330,13 @@ def iterate_values(S):
 
 # possible combination to keep in mind
 param_grid = {
-    'hidden_size':[60,80,100],
-    'num_iters':[1000,2000,3000],
-    'batch_size':[100,200],# [32,64,128,256,512],
-    'learning_rate':[0.01,0.001,0.0001],
-    'learning_rate_decay':[0.95],# [0.95,0.85,0.75,0.65],
-    'reg':[0.15,0.25,0.35]#,0.35,0.45,0.55]
-} # 164 combinations --> GridSearchCV() approach
+    'hidden_size': [60, 80, 100, 120],
+    'num_iters': [1000, 2000, 3000],
+    'batch_size': [100, 200],
+    'learning_rate': [0.01, 0.001, 0.0001],
+    'learning_rate_decay': [0.95],
+    'reg': [0.10, 0.15, 0.25, 0.35]
+} # 288 combinations --> \w GridSearchCV() approach
 
 current_best_val_acc = 0.0
 current_best_params = dict.fromkeys(param_grid.keys())
@@ -365,15 +365,39 @@ for combo in tqdm(iterate_values(param_grid)):
         current_best_params['reg'] = combo['reg']
         best_net = net
 
-print(current_best_params) # top combination
+print(current_best_params) # print the top combination
+
+### Plot the behaviour of the top combination
+
+# net = TwoLayerNet(input_size, 100, num_classes)
+# stats = net.train(X_train, y_train, X_val, y_val,
+#                     num_iters=3000, batch_size=200,
+#                     learning_rate=0.001, learning_rate_decay=0.95,
+#                     reg=0.15, verbose=False)
+# print(stats['val_acc_history'][-1])
+# best_net = net
+
+# plt.figure(3)
+# plt.subplot(2, 1, 1)
+# plt.plot(stats['loss_history'])
+# plt.title('Loss history')
+# plt.xlabel('Iteration')
+# plt.ylabel('Loss')
+
+# plt.subplot(2, 1, 2)
+# plt.plot(stats['train_acc_history'], label='train')
+# plt.plot(stats['val_acc_history'], label='val')
+# plt.title('Classification accuracy history')
+# plt.xlabel('Epoch')
+# plt.ylabel('Classification accuracy')
+# plt.legend()
+# plt.show()
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
 
 # visualize the weights of the best network
 plt.figure(6)
 show_net_weights(best_net)
-
 
 # Run on the test set
 # When you are done experimenting, you should evaluate your final trained
