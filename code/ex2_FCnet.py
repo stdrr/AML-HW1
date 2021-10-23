@@ -276,6 +276,48 @@ best_net = None # store the best model into this
 
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+def randomSearch(n, param_grid, current_best_val_acc, current_best_params):
+
+    '''
+    Basic random search.
+
+    :param n: number of iteration
+    :param param_grid: dictionary with all parameters
+    :param current_best_val_acc: best accuracy
+    :param current_best_params: best parameters
+
+    :return TwoLayerNet()
+    '''
+
+    for random_iter in np.arange(0,n):
+        h_size = np.random.choice(param_grid['hidden_size'])
+        n_iters = np.random.choice(param_grid['num_iters'])
+        b_size = np.random.choice(param_grid['batch_size'])
+        l_rate = 10 ** np.random.uniform(-4, -1)#np.random.choice(param_grid['learning_rate'])
+        lr_decay = np.random.choice(param_grid['learning_rate_decay'])
+        r = 10 ** np.random.uniform(-3, 0)#np.random.choice(param_grid['reg'])
+
+        print(f'Start random search...{random_iter+1}')
+        print(h_size,n_iters,b_size,l_rate,lr_decay,r)
+
+        net = TwoLayerNet(input_size, h_size, num_classes)
+        stats = net.train(X_train, y_train, X_val, y_val,
+                            num_iters=n_iters, batch_size=b_size,
+                            learning_rate=l_rate, learning_rate_decay=lr_decay,
+                            reg=r, verbose=False)
+        if stats['val_acc_history'][-1] > current_best_val_acc:
+            current_best_val_acc = stats['val_acc_history'][-1]
+            current_best_params['hidden_size'] = h_size
+            current_best_params['num_iters'] = n_iters
+            current_best_params['batch_size'] = b_size
+            current_best_params['learning_rate'] = l_rate
+            current_best_params['learning_rate_decay'] = lr_decay
+            current_best_params['reg'] = r
+            best_net = net
+
+    print(current_best_params)
+    return best_net
+
 from tqdm import tqdm
 import itertools
 
