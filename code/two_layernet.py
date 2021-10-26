@@ -97,10 +97,10 @@ class TwoLayerNet(object):
 		softmax = lambda x:  np.exp(x)/np.sum(np.exp(x), axis = 1).reshape(x.shape[0], 1)
 
 		a1 = X
-		z2 = a1.dot(W1) + b1 # np.einsum('ij, ki -> kj', W1, a1) + b1
+		z2 = a1.dot(W1) + b1
 		a2 = ReLU(z2)
-		z3 = a2.dot(W2) + b2 # np.einsum('ij, ki -> kj', W2, a2) + b2
-		scores = softmax(z3) # scores = a3
+		z3 = a2.dot(W2) + b2 
+		scores = softmax(z3) 
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -123,27 +123,9 @@ class TwoLayerNet(object):
 		# Implement the loss for the softmax output layer
 		
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-		
-		"""
-		Code to double check the numpy implementation
-		"""
-		# Z_exp = np.exp(X)
-		# J = 0
-		# for i in range(0, N):
-		#   J += -np.log(Z_exp[i, y[i]] / np.sum(Z_exp[i]))
-		
-		# J = J / N
-
-		# R = reg * (np.sum(np.power(W1, 2)) + np.sum(np.power(W2, 2)))
-
-		# loss = J + R
-		
-		# J = lambda scores, y: np.mean(-np.log( scores[np.arange(N),y] ) )
-		# R = lambda W1, W2, r_lambda: r_lambda*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
-		# loss = J(scores=scores, y=y) + R(W1, W2, r_lambda=reg)
 
 		J = np.mean(-np.log( scores[np.arange(N),y] ) )
-		R = reg*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W @ W
+		R = reg*((W1*W1).sum() + (W2*W2).sum()) # ||W||_2^2 = W * W = W**2
 		loss = J + R
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -168,8 +150,9 @@ class TwoLayerNet(object):
 		dz3_da2 = W2.T
 		da2_dz2 = (z2 > 0)
 		dz2_dW1 = a1.T
+		dJ_dz2 = ((dJ_dz3 @ dz3_da2) * da2_dz2)
 		dR_dW1 = 2 * reg * W1
-		grads['W1'] = dz2_dW1 @ ((dJ_dz3 @ dz3_da2) * da2_dz2) + dR_dW1
+		grads['W1'] = dz2_dW1 @ dJ_dz2 + dR_dW1
 
 		# Compute dJ/dW2 = dJ/dz3 * dz3/dW2
 		dz3_dW2 = a2.T
@@ -177,7 +160,7 @@ class TwoLayerNet(object):
 		grads['W2'] = dz3_dW2 @ dJ_dz3 + dR_dW2
 
 		# Compute dJ/db1 = dJ/dz3 * dz3/da2 * da2/dz2 * dz2/db1
-		grads['b1'] =  ((dJ_dz3 @ dz3_da2) * da2_dz2).sum(axis=0)
+		grads['b1'] =  dJ_dz2.sum(axis=0)
 
 		# Compute dJ/db2 = dJ/dz3 * dz3/db2
 		grads['b2'] = dJ_dz3.sum(axis=0)

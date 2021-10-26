@@ -296,9 +296,9 @@ def randomSearch(n, param_grid, current_best_val_acc, current_best_params):
         h_size = np.random.choice(param_grid['hidden_size'])
         n_iters = np.random.choice(param_grid['num_iters'])
         b_size = np.random.choice(param_grid['batch_size'])
-        l_rate = 10 ** np.random.uniform(-4, -1)#np.random.choice(param_grid['learning_rate'])
+        l_rate = 10 ** np.random.uniform(-4, -1)
         lr_decay = np.random.choice(param_grid['learning_rate_decay'])
-        r = 10 ** np.random.uniform(-3, 0)#np.random.choice(param_grid['reg'])
+        r = 10 ** np.random.uniform(-3, 0)
 
         print(f'Start random search...{random_iter+1}')
         print(h_size,n_iters,b_size,l_rate,lr_decay,r)
@@ -321,12 +321,14 @@ def randomSearch(n, param_grid, current_best_val_acc, current_best_params):
     print(current_best_params)
     return best_net
 
-# avoid storing in the memory whole of the combinations, but runs the code once
+
+# avoid storing in memory all the combinations
 def iterate_values(S): 
     keys, values = zip(*S.items())
 
     for row in itertools.product(*values):
         yield dict(zip(keys, row))
+
 
 # possible combination to keep in mind
 param_grid = {
@@ -336,7 +338,7 @@ param_grid = {
     'learning_rate': [0.01, 0.001, 0.0001],
     'learning_rate_decay': [0.95],
     'reg': [0.10, 0.15, 0.25, 0.35]
-} # 288 combinations --> \w GridSearchCV() approach
+} 
 
 current_best_val_acc = 0.0
 current_best_params = dict.fromkeys(param_grid.keys())
@@ -365,33 +367,36 @@ for combo in tqdm(iterate_values(param_grid)):
         current_best_params['reg'] = combo['reg']
         best_net = net
 
-print(current_best_params) # print the top combination
+print(current_best_params) 
 
-### Plot the behaviour of the top combination
+## Plot the behaviour of the top combination
 
-# net = TwoLayerNet(input_size, 100, num_classes)
-# stats = net.train(X_train, y_train, X_val, y_val,
-#                     num_iters=3000, batch_size=200,
-#                     learning_rate=0.001, learning_rate_decay=0.95,
-#                     reg=0.15, verbose=False)
-# print(stats['val_acc_history'][-1])
-# best_net = net
+show_plot = False
 
-# plt.figure(3)
-# plt.subplot(2, 1, 1)
-# plt.plot(stats['loss_history'])
-# plt.title('Loss history')
-# plt.xlabel('Iteration')
-# plt.ylabel('Loss')
+if show_plot:
+    net = TwoLayerNet(input_size, 100, num_classes)
+    stats = net.train(X_train, y_train, X_val, y_val,
+                        num_iters=3000, batch_size=200,
+                        learning_rate=0.001, learning_rate_decay=0.95,
+                        reg=0.15, verbose=False)
+    print(stats['val_acc_history'][-1])
+    best_net = net
 
-# plt.subplot(2, 1, 2)
-# plt.plot(stats['train_acc_history'], label='train')
-# plt.plot(stats['val_acc_history'], label='val')
-# plt.title('Classification accuracy history')
-# plt.xlabel('Epoch')
-# plt.ylabel('Classification accuracy')
-# plt.legend()
-# plt.show()
+    plt.figure(3)
+    plt.subplot(2, 1, 1)
+    plt.plot(stats['loss_history'])
+    plt.title('Loss history')
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss')
+
+    plt.subplot(2, 1, 2)
+    plt.plot(stats['train_acc_history'], label='train')
+    plt.plot(stats['val_acc_history'], label='val')
+    plt.title('Classification accuracy history')
+    plt.xlabel('Epoch')
+    plt.ylabel('Classification accuracy')
+    plt.legend()
+    plt.show()
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

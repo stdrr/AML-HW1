@@ -32,7 +32,7 @@ learning_rate_decay = 0.95
 reg=0.001
 num_training= 49000
 num_validation =1000
-train = True
+train = False
 
 #-------------------------------------------------
 # Load the CIFAR-10 dataset
